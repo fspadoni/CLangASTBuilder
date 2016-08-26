@@ -2,6 +2,7 @@
 
 #include "visitors.h"
 #include "utils.h"
+#include "writer.h"
 
 #include <boost/filesystem.hpp>
 
@@ -61,7 +62,7 @@ void FuncDeclAction::CreateMockFile()
    const clang::SourceManager& sourceMgr = _compiler->getSourceManager();
 
    // look for paths to include in the mock file
-   for ( auto funcDecl : result::functionDecls )
+   for ( auto funcDecl : results::functionDecls )
    {
       // get declaration source location
       const clang::SourceLocation declSrcLoc = funcDecl->getSourceRange().getBegin();
@@ -72,9 +73,9 @@ void FuncDeclAction::CreateMockFile()
       includePaths.insert( p.filename().string() );
    }
 
-   utils::writeBeginFFF( out, includePaths );
+   Writer::BeginFFF( out, includePaths );
 
-   for ( auto funcDecl : result::functionDecls )
+   for ( auto funcDecl : results::functionDecls )
    {
       // get declaration source location
       const clang::SourceLocation declSrcLoc = funcDecl->getSourceRange().getBegin();
@@ -89,7 +90,7 @@ void FuncDeclAction::CreateMockFile()
       out << " * file: " << declSrcFile << std::endl;
       out << " */" << std::endl;
      
-      utils::writeMockFunctionFFF(funcDecl, out);
+      Writer::MockFunctionFFF(funcDecl, out);
       
       out << std::endl << std::endl; 
    }
@@ -118,7 +119,7 @@ void FuncDeclAction::CreateUnitTestFile()
    const clang::SourceManager& sourceMgr = _compiler->getSourceManager();
 
    // look for paths to include in the mock file
-   for ( auto funcDecl : result::functionToUnitTest )
+   for ( auto funcDecl : results::functionToUnitTest )
    {
       // get declaration source location
       const clang::SourceLocation declSrcLoc = funcDecl->getSourceRange().getBegin();

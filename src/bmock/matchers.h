@@ -1,3 +1,6 @@
+#ifndef _CLangASTBuilder_actions_h__
+#define _CLangASTBuilder_actions_h__
+
 #include <clang/ASTMatchers/ASTMatchers.h>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 
@@ -20,3 +23,5 @@ public:
 
 };
 
+
+#endif // _CLangASTBuilder_actions_h__

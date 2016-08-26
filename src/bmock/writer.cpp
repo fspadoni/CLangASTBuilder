@@ -3,7 +3,7 @@
 #include <clang/AST/Decl.h>
 #include <boost/filesystem/convenience.hpp>
 
-void writer::writeBeginFFF(std::ostringstream& out, const std::set<std::string>& includePaths)
+void Writer::BeginFFF(std::ostringstream& out, const std::set<std::string>& includePaths)
 {
 
    out << "/** " << std::endl;
@@ -25,7 +25,7 @@ void writer::writeBeginFFF(std::ostringstream& out, const std::set<std::string>&
 
 }
 
-void writer::writeEndFFF(std::ostringstream& out)
+void Writer::EndFFF(std::ostringstream& out)
 {
    out << std::endl;
    out << "/**" << std::endl;
@@ -33,7 +33,7 @@ void writer::writeEndFFF(std::ostringstream& out)
    out << " */" << std::endl << std::endl;
 
 }
-void writer::writeMockFunctionFFF(const clang::FunctionDecl* funcDecl, std::ostringstream& out)
+void Writer::MockFunctionFFF(const clang::FunctionDecl* funcDecl, std::ostringstream& out)
 {
          
    std::string returnType = funcDecl->getReturnType().getAsString();

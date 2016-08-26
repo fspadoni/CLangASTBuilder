@@ -1,3 +1,5 @@
+#ifndef _CLangASTBuilder_MockVisitor_h__
+#define _CLangASTBuilder_MockVisitor_h__ 
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/AST/ASTConsumer.h>
@@ -66,3 +68,5 @@ public:
 
 };
 
+
+#endif // _CLangASTBuilder_MockVisitor_h__

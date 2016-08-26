@@ -1,5 +1,5 @@
 
-#include "FuncUTDefVisitors.h"
+#include "FuncUTDefVisitor.h"
 
 #include "utils.h"
 
@@ -28,7 +28,7 @@ bool FuncUTDefVisitor::VisitDecl(clang::Decl* decl)
       const std::string declSrcFile = srcMgr.getFilename(declSrcLoc).str();
       // check if the funcDecl is in the input argument file
       if ( declSrcFile.find( _fileName) != std::string::npos )
-         result::functionToUnitTest.insert(funcDef);
+         results::functionToUnitTest.insert(func);
    } 
 
    return true;

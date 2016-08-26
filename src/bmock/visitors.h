@@ -1,3 +1,5 @@
+#ifndef _CLangASTBuilder_visitors_h__
+#define _CLangASTBuilder_visitors_h__ 
 
 #include <clang/AST/RecursiveASTVisitor.h>
 #include <clang/AST/ASTConsumer.h>
@@ -26,3 +28,4 @@ public:
 };
 
 
+#endif // _CLangASTBuilder_visitors_h__

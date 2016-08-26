@@ -1,12 +1,12 @@
 
-#include "FuncUTDeclVisitors.h"
+#include "FuncUTDeclVisitor.h"
 
 #include "utils.h"
 
 #include <boost/filesystem.hpp>
 
 #include <iostream>
-#include <fstream>
+#include <set>
 
 
 FuncUTDeclVisitor::FuncUTDeclVisitor(clang::ASTContext* context, std::string fileName):  _context(context), _fileName(fileName) {}
@@ -28,11 +28,11 @@ bool FuncUTDeclVisitor::VisitDecl(clang::Decl* decl)
       const std::string declSrcFile = srcMgr.getFilename(declSrcLoc).str();
       // check if the funcDecl is in the input argument file
     
-      for ( auto func_i : result::functionToUnitTest ){
+      for ( auto func_i : results::functionToUnitTest ){
          if( func_i->getNameInfo().getName().getAsString() == 
 	     func->getNameInfo().getName().getAsString() ){
 	    boost::filesystem::path p(declSrcFile);
-	    result::includesForUT.insert(p.filename().string());
+	    results::includesForUT.insert(p.filename().string());
 	    break;
 	 }
       }

@@ -59,7 +59,7 @@ bool MockVisitor::VisitStmt(clang::Stmt* stmt)
    
    // mock this function
    //std::cout << "accepted" << std::endl;
-   result::functionDecls.insert(funcDecl);
+   results::functionDecls.insert(funcDecl);
 
    return true;
 }

@@ -1,3 +1,5 @@
+#ifndef _CLangASTBuilder_writer_h__
+#define _CLangASTBuilder_writer_h__
 
 #include <string>
 #include <sstream>
@@ -8,17 +10,21 @@ namespace clang {
    class FunctionDecl;
 }
 
-class utils 
+
+class Writer 
 {
 
 public:
 
 
-   static void writeBeginFFF(std::ostringstream& out, const std::set<std::string>& includePaths);
+   static void BeginFFF(std::ostringstream& out, const std::set<std::string>& includePaths);
 
-   static void writeEndFFF(std::ostringstream& out);
+   static void EndFFF(std::ostringstream& out);
    
-   static void writeMockFunctionFFF(const clang::FunctionDecl* funcDecl, std::ostringstream& out);
+   static void MockFunctionFFF(const clang::FunctionDecl* funcDecl, std::ostringstream& out);
 
 
 };
+
+
+#endif // _CLangASTBuilder_writer_h__

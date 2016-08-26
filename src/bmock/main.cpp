@@ -4,8 +4,12 @@
 //#define __STDC_LIMIT_MACROS
 //#define __STDC_CONSTANT_MACROS
 
-#include "actions.h"
-#include "matchers.h"
+#include "MockVisitor.h"
+#include "FuncUTDefVisitor.h"
+#include "FuncUTDeclVisitor.h"
+#include "writer.h"
+#include "utils.h"
+
 
 #include <clang/Tooling/Tooling.h>
 

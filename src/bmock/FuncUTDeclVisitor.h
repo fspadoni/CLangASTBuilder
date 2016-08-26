@@ -1,3 +1,5 @@
+#ifndef _CLangASTBuilder_FuncUTDeclVisitor_h__
+#define _CLangASTBuilder_FuncUTDeclVisitor_h__
  
 
 #include <clang/AST/RecursiveASTVisitor.h>
@@ -7,9 +9,10 @@
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Rewrite/Core/Rewriter.h>
 
-#include <set>
+
 #include <string>
-#include <sstream>
+
+
 
 class FuncUTDeclVisitor : public clang::RecursiveASTVisitor<FuncUTDeclVisitor>
 {
@@ -58,3 +61,4 @@ public:
 };
 
  
+#endif // _CLangASTBuilder_FuncUTDeclVisitor_h__

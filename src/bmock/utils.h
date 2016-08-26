@@ -1,6 +1,7 @@
+#ifndef _CLangASTBuilder_utils_h__
+#define _CLangASTBuilder_utils_h__
 
 #include <string>
-#include <sstream>
 #include <set>
 
 
@@ -8,11 +9,14 @@ namespace clang {
    class FunctionDecl;
 }
 
-namespace results{
+
+namespace results {
    std::set<const clang::FunctionDecl*>  functionDecls;
    std::set<const clang::FunctionDecl*>  functionToUnitTest;
-   std::set<const std::string>           includesForUT;
+   std::set<std::string>           includesForUT;
 }
+
+
 
 class utils 
 {
@@ -45,3 +49,6 @@ public:
    static std::string changeFileExtension(const std::string& fileName, const std::string& newExtension);
 
 };
+
+
+#endif // _CLangASTBuilder_utils_h__

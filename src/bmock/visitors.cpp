@@ -31,12 +31,12 @@ bool FuncDeclVisitor::VisitDecl(clang::Decl* decl)
       const std::string declSrcFile = srcMgr.getFilename(declSrcLoc).str();
       // check if the funcDecl is in the input argument file
       if ( declSrcFile.find( _fileName) != std::string::npos )
-         result::functionToUnitTest.insert(funcDef);
+         results::functionToUnitTest.insert(func);
    } else {
-      for ( auto func_i : result::functionToUnitTest ){
-         func_i.
+      for ( auto func_i : results::functionToUnitTest ){
+         //func_i.
       }
-      std::set<clang::FunctionDecl*>::const_iterator iter = result::functionToUnitTest.find()
+      //std::set<clang::FunctionDecl*>::const_iterator iter = results::functionToUnitTest.find(declSrcFile)
    }
 
    return true;
@@ -78,7 +78,7 @@ bool FuncDeclVisitor::VisitStmt(clang::Stmt* stmt)
    
    // mock this function
    //std::cout << "accepted" << std::endl;
-   result::functionDecls.insert(funcDecl);
+   results::functionDecls.insert(funcDecl);
 
    return true;
 }
