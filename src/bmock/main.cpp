@@ -46,7 +46,9 @@ int main(int argc, const char *argv[])
  
    clang::tooling::ClangTool _tool(_optionParser.getCompilations(), _optionParser.getSourcePathList() );
 
-   int result = _tool.run( clang::tooling::newFrontendActionFactory<FuncDeclAction>().get() );
+   int result = _tool.run( clang::tooling::newFrontendActionFactory<MockAction>().get() );
+   result = _tool.run( clang::tooling::newFrontendActionFactory<FuncUTDefAction>().get() );
+   result = _tool.run( clang::tooling::newFrontendActionFactory<FuncUTDeclAction>().get() );
 
 
    //CallFuncMatchCallback _callFuncCallback;

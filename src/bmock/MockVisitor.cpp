@@ -1,4 +1,4 @@
-#include "visitors.h"
+#include "MockVisitor.h"
 
 #include "utils.h"
 
@@ -8,48 +8,20 @@
 #include <fstream>
 
 
-FuncDeclVisitor::FuncDeclVisitor(clang::ASTContext*  context,
-                                 const std::string&  fileName )
-:  _context(context), 
-   _fileName(fileName)
-{
-   //rewriter.setSourceMgr(_context->getSourceManager(), _context->getLangOpts());
-}
+MockVisitor::MockVisitor(clang::ASTContext* context, std::string fileName):  _context(context), _fileName(fileName) {}
 
 
-bool FuncDeclVisitor::VisitDecl(clang::Decl* decl)
-{
-   const clang::FunctionDecl* func = llvm::dyn_cast<clang::FunctionDecl>(decl);
 
-   if (func == nullptr)
-      return true;
-
-   if ( func->hasBody() ){
-      // get declaration source location
-      const clang::SourceManager& srcMgr = _context->getSourceManager();
-      const clang::SourceLocation declSrcLoc = func->getSourceRange().getBegin();
-      const std::string declSrcFile = srcMgr.getFilename(declSrcLoc).str();
-      // check if the funcDecl is in the input argument file
-      if ( declSrcFile.find( _fileName) != std::string::npos )
-         result::functionToUnitTest.insert(funcDef);
-   } else {
-      for ( auto func_i : result::functionToUnitTest ){
-         func_i.
-      }
-      std::set<clang::FunctionDecl*>::const_iterator iter = result::functionToUnitTest.find()
-   }
-
-   return true;
-}
-
-
-bool FuncDeclVisitor::VisitStmt(clang::Stmt* stmt)
+bool MockVisitor::VisitStmt(clang::Stmt* stmt)
 {
 
    // check if the statement is a function call
    const clang::CallExpr* funcCall = llvm::dyn_cast<clang::CallExpr>(stmt);
    if ( funcCall == nullptr )
+   {
+      // this statement is not a function call
       return true;
+   }
 
    const clang::FunctionDecl* funcDecl = funcCall->getDirectCallee();
 
@@ -67,14 +39,23 @@ bool FuncDeclVisitor::VisitStmt(clang::Stmt* stmt)
       
    // check if the statement is in the input argument file
    if ( declSrcFile.find( _fileName) != std::string::npos )
+   {
+      // this function doesn't need to be mocked but tested
+      //std::cout << "this function doesn't need to be mocked but tested" << std::endl;
+      //_functionToUnitTest.insert(funcDecl);
       return true;
+   }
 
 
    // TO DO: fix this
    // temporary check
    // WEAK CHECK if declaration is in CommercialCode path
    if ( declSrcFile.find( "CommercialCode") == std::string::npos )
+   {
+      // this is (probably) a system function
+      //std::cout << "this is (probably) a system function" << std::endl;
       return true;
+   }
    
    // mock this function
    //std::cout << "accepted" << std::endl;
@@ -84,3 +65,24 @@ bool FuncDeclVisitor::VisitStmt(clang::Stmt* stmt)
 }
 
 
+MockConsumer::MockConsumer(clang::ASTContext*  context,
+                           std::string         fileName )
+   : ASTConsumer()
+   , _visitor( nullptr )
+{
+   _visitor =  new MockVisitor( context, fileName );
+}
+
+
+
+void MockConsumer::HandleTranslationUnit(clang::ASTContext& ctx) 
+{
+   _visitor->TraverseDecl(ctx.getTranslationUnitDecl());
+}
+
+
+
+clang::ASTConsumer* MockAction::CreateASTConsumer(clang::CompilerInstance& compiler, llvm::StringRef inFile)
+{
+   return new MockConsumer(  &compiler.getASTContext(), inFile.str() );
+}

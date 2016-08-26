@@ -8,17 +8,17 @@ namespace clang {
    class FunctionDecl;
 }
 
+namespace results{
+   std::set<const clang::FunctionDecl*>  functionDecls;
+   std::set<const clang::FunctionDecl*>  functionToUnitTest;
+   std::set<const std::string>           includesForUT;
+}
+
 class utils 
 {
 
 public:
-
-
-   static void writeBeginFFF(std::ostringstream& out, const std::set<std::string>& includePaths);
-
-   static void writeEndFFF(std::ostringstream& out);
    
-   static void writeMockFunctionFFF(const clang::FunctionDecl* funcDecl, std::ostringstream& out);
 
    /** 
     *	<function name>: removeFileExtension

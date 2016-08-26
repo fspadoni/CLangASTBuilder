@@ -11,15 +11,12 @@
 
 
 
-//FuncDeclConsumer::FuncDeclConsumer(clang::Rewriter& reWriter, const std::string& fileNamePath ) 
-FuncDeclConsumer::FuncDeclConsumer(clang::ASTContext*                      context,
-                                   std::set<const clang::FunctionDecl*>&   functionDecls,
-                                   std::set<const clang::FunctionDecl*>&   functionToUnitTest,
-                                   const std::string&                      fileName )
+FuncDeclConsumer::FuncDeclConsumer(clang::ASTContext*   context,
+                                   const std::string&   fileName )
    : ASTConsumer()
    , _visitor( nullptr )
 {
-   _visitor =  new FuncDeclVisitor( context, functionDecls, functionToUnitTest, fileName );
+   _visitor =  new FuncDeclVisitor( context, fileName );
 }
 
 FuncDeclConsumer::~FuncDeclConsumer()
@@ -47,7 +44,7 @@ clang::ASTConsumer* FuncDeclAction::CreateASTConsumer(clang::CompilerInstance& c
    _fileName = utils::removeFileExtension( inFile.str() );
    const std::string headerFileName = utils::changeFileExtension(inFile.str(), "h");
 
-   return new FuncDeclConsumer(  &compiler.getASTContext(),  _functionDecls, _functionToUnitTest, _fileName );
+   return new FuncDeclConsumer(  &compiler.getASTContext(),  _fileName );
 }
 
 void FuncDeclAction::EndSourceFileAction(){
@@ -64,7 +61,7 @@ void FuncDeclAction::CreateMockFile()
    const clang::SourceManager& sourceMgr = _compiler->getSourceManager();
 
    // look for paths to include in the mock file
-   for ( auto funcDecl : _functionDecls )
+   for ( auto funcDecl : result::functionDecls )
    {
       // get declaration source location
       const clang::SourceLocation declSrcLoc = funcDecl->getSourceRange().getBegin();
@@ -77,7 +74,7 @@ void FuncDeclAction::CreateMockFile()
 
    utils::writeBeginFFF( out, includePaths );
 
-   for ( auto funcDecl : _functionDecls )
+   for ( auto funcDecl : result::functionDecls )
    {
       // get declaration source location
       const clang::SourceLocation declSrcLoc = funcDecl->getSourceRange().getBegin();
@@ -121,7 +118,7 @@ void FuncDeclAction::CreateUnitTestFile()
    const clang::SourceManager& sourceMgr = _compiler->getSourceManager();
 
    // look for paths to include in the mock file
-   for ( auto funcDecl : _functionToUnitTest )
+   for ( auto funcDecl : result::functionToUnitTest )
    {
       // get declaration source location
       const clang::SourceLocation declSrcLoc = funcDecl->getSourceRange().getBegin();
@@ -172,6 +169,5 @@ void FuncDeclAction::CreateUnitTestFile()
   
    std::cout << "file written: " << outputFileName << std::endl;
 
-
-
 }
+
