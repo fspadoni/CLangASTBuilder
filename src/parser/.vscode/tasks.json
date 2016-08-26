@@ -1,0 +1,10 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "0.1.0",
+    "command": "gcc",
+    "isShellCommand": true,
+    "args": ["main.cpp", "-o", "parser", "-I/usr/include", "-I/usr/include/c++/4.8", "-std=c++11", 
+     "-l/usr/lib64/gcc/x86_64-suse-linux/4.8/libstdc++.a"],
+    "showOutput": "always"
+}

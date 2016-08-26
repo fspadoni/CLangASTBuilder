@@ -1,0 +1,1 @@
+/tools/gcc/4.3.2-sysroot/bin/g++   -g    CMakeFiles/clangParserTest.dir/main.cpp.o CMakeFiles/clangParserTest.dir/parser.cpp.o  -o clangParserTest -rdynamic 
