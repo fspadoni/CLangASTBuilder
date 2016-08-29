@@ -28,11 +28,11 @@ bool FuncUTDeclVisitor::VisitDecl(clang::Decl* decl)
       const std::string declSrcFile = srcMgr.getFilename(declSrcLoc).str();
       // check if the funcDecl is in the input argument file
     
-      for ( auto func_i : results::functionToUnitTest ){
+      for ( auto func_i : results::get().functionToUnitTest ){
          if( func_i->getNameInfo().getName().getAsString() == 
 	     func->getNameInfo().getName().getAsString() ){
 	    boost::filesystem::path p(declSrcFile);
-	    results::includesForUT.insert(p.filename().string());
+	    results::get().includesForUT.insert(p.filename().string());
 	    break;
 	 }
       }

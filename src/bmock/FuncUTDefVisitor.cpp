@@ -28,7 +28,7 @@ bool FuncUTDefVisitor::VisitDecl(clang::Decl* decl)
       const std::string declSrcFile = srcMgr.getFilename(declSrcLoc).str();
       // check if the funcDecl is in the input argument file
       if ( declSrcFile.find( _fileName) != std::string::npos )
-         results::functionToUnitTest.insert(func);
+         results::get().functionToUnitTest.insert(func);
    } 
 
    return true;

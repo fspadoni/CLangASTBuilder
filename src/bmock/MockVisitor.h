@@ -66,6 +66,9 @@ public:
 
    virtual clang::ASTConsumer* CreateASTConsumer(clang::CompilerInstance& compiler, llvm::StringRef inFile) override;
 
+   virtual void EndSourceFileAction() override;
+
+   
 };
 
 

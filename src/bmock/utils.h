@@ -10,12 +10,26 @@ namespace clang {
 }
 
 
-namespace results {
+
+
+class results {
+  
+   results(void) {};
+   ~results(void) {};
+   
+
+public:
+   static results& get(void) {
+      static results instance;
+      return instance;
+   };
+   
+   
    std::set<const clang::FunctionDecl*>  functionDecls;
    std::set<const clang::FunctionDecl*>  functionToUnitTest;
-   std::set<std::string>           includesForUT;
-}
+   std::set<std::string>                 includesForUT;
 
+};
 
 
 class utils 

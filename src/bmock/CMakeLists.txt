@@ -35,27 +35,27 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
 
 set ( HEADER_FILES
-    	MockVisitor.h
-    	FuncUTDefVisitor.h
-    	FuncUTDeclVisitor.h
-    	writer.h
-    	visitors.h
-    	actions.h
-    	matchers.h
-    	utils.h
-    )
+      MockVisitor.h
+      FuncUTDefVisitor.h
+      FuncUTDeclVisitor.h
+      writer.h
+      #visitors.h
+      #actions.h
+      #matchers.h
+      utils.h
+      )
 
 set ( SOURCE_FILES
-	main.cpp
-	MockVisitor.cpp
-    	FuncUTDefVisitor.cpp
-    	FuncUTDeclVisitor.cpp
-    	writer.cpp
-	visitors.cpp
-	actions.cpp
-	matchers.cpp
-	utils.cpp
-    )
+      main.cpp
+      MockVisitor.cpp
+      FuncUTDefVisitor.cpp
+      FuncUTDeclVisitor.cpp
+      writer.cpp
+      #visitors.cpp
+      #actions.cpp
+      #matchers.cpp
+      utils.cpp
+      )
     
 #http://llvm.org/docs/CMake.html#embedding-llvm-in-your-project
 

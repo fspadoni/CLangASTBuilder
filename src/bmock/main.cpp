@@ -51,10 +51,13 @@ int main(int argc, const char *argv[])
    clang::tooling::ClangTool _tool(_optionParser.getCompilations(), _optionParser.getSourcePathList() );
 
    int result = _tool.run( clang::tooling::newFrontendActionFactory<MockAction>().get() );
-   result = _tool.run( clang::tooling::newFrontendActionFactory<FuncUTDefAction>().get() );
-   result = _tool.run( clang::tooling::newFrontendActionFactory<FuncUTDeclAction>().get() );
+   //result = _tool.run( clang::tooling::newFrontendActionFactory<FuncUTDefAction>().get() );
+   //result = _tool.run( clang::tooling::newFrontendActionFactory<FuncUTDeclAction>().get() );
 
 
+   //Writer::CreateMockFile();
+   //Writer::CreateUnitTestFile();
+   
    //CallFuncMatchCallback _callFuncCallback;
    //clang::ast_matchers::MatchFinder _matchFinder;
    //clang::ast_matchers::StatementMatcher _callFunc = clang::CallExpr(); //callee(), &_callFuncCallback );
