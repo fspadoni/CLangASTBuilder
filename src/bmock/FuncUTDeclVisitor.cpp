@@ -64,3 +64,8 @@ clang::ASTConsumer* FuncUTDeclAction::CreateASTConsumer(clang::CompilerInstance&
 {
    return new FuncUTDeclConsumer(  &compiler.getASTContext(), inFile.str() );
 } 
+
+
+void FuncUTDeclAction::EndSourceFileAction(){
+   //Writer::CreateUnitTestFile(  getCurrentFile().str(), getCompilerInstance().getSourceManager() );
+}

@@ -29,13 +29,28 @@ public:
 
 
 
+class FuncUTDeclVisitor : public clang::RecursiveASTVisitor<FuncUTDeclVisitor>
+{
+
+   clang::ASTContext *_context;
+   std::string _fileName;
+
+public:
+
+   explicit FuncUTDeclVisitor(clang::ASTContext* context, std::string fileName);
+
+   
+   bool VisitDecl(clang::Decl* decl);
+   
+};
 
 
 
 class FuncUTDefConsumer : public clang::ASTConsumer 
 {
 
-   FuncUTDefVisitor* _visitor;
+   FuncUTDefVisitor* _defVisitor;
+   FuncUTDeclVisitor* _declVisitor;
 
 public:
 
@@ -55,6 +70,8 @@ public:
    FuncUTDefAction() {};
 
    virtual clang::ASTConsumer* CreateASTConsumer(clang::CompilerInstance& compiler, llvm::StringRef inFile) override;
+   
+   virtual void EndSourceFileAction() override;
 
 };
 

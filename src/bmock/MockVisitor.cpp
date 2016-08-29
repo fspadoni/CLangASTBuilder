@@ -95,5 +95,4 @@ clang::ASTConsumer* MockAction::CreateASTConsumer(clang::CompilerInstance& compi
 
 void MockAction::EndSourceFileAction(){
    Writer::CreateMockFile(  getCurrentFile().str(), getCompilerInstance().getSourceManager() );
-   Writer::CreateUnitTestFile(  getCurrentFile().str(), getCompilerInstance().getSourceManager() );
 }
