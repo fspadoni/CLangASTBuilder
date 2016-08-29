@@ -12,13 +12,10 @@ std::string utils::removeFileExtension( const std::string& fileNamePath)
       return fileNamePath;
    else
       return fileNamePath.substr(0, lastdot);
-
-  // return boost::filesystem::path(fileNamePath).stem().string();
   
 }
 
 std::string utils::changeFileExtension(const std::string& fileName, const std::string& newExt)
 {
-
    return boost::filesystem::change_extension(fileName, newExt).string();
 }

@@ -1,13 +1,11 @@
 
 #include "FuncUTDefVisitor.h"
 
-#include "utils.h"
-#include "writer.h"
-
 #include <boost/filesystem.hpp>
+#include <clang/Basic/SourceManager.h>
+#include <clang/AST/ASTContext.h>
 
-#include <iostream>
-#include <fstream>
+#include "utils.h"
 
 
 FuncUTDefVisitor::FuncUTDefVisitor(clang::ASTContext* context, std::string fileName):  _context(context), _fileName(fileName)
@@ -44,7 +42,6 @@ bool FuncUTDefVisitor::VisitDecl(clang::Decl* decl)
 FuncUTDeclVisitor::FuncUTDeclVisitor(clang::ASTContext* context, std::string fileName):  _context(context), _fileName(fileName) {}
 
 
-
 bool FuncUTDeclVisitor::VisitDecl(clang::Decl* decl)
 {
 
@@ -62,11 +59,11 @@ bool FuncUTDeclVisitor::VisitDecl(clang::Decl* decl)
     
       for ( auto func_i : results::get().functionToUnitTest ){
          if( func_i->getNameInfo().getName().getAsString() == 
-	     func->getNameInfo().getName().getAsString() ){
-	    boost::filesystem::path p(declSrcFile);
-	    results::get().includesForUT.insert(p.filename().string());
-	    break;
-	 }
+             func->getNameInfo().getName().getAsString() ){
+            boost::filesystem::path p(declSrcFile);
+            results::get().includesForUT.insert(p.filename().string());
+            break;
+         }
       }
    
    } 
@@ -74,33 +71,3 @@ bool FuncUTDeclVisitor::VisitDecl(clang::Decl* decl)
    return true;
 }
 
-
-
-FuncUTDefConsumer::FuncUTDefConsumer(clang::ASTContext*  context,
-                           std::string         fileName )
-   : ASTConsumer()
-   , _defVisitor( nullptr )
-   , _declVisitor( nullptr )
-{
-   _defVisitor = new FuncUTDefVisitor( context, fileName );
-   _declVisitor = new FuncUTDeclVisitor( context, fileName );
-}
-
-
-
-void FuncUTDefConsumer::HandleTranslationUnit(clang::ASTContext& ctx) 
-{
-   _defVisitor->TraverseDecl(ctx.getTranslationUnitDecl());
-   _declVisitor->TraverseDecl(ctx.getTranslationUnitDecl());
-}
-
-
-
-clang::ASTConsumer* FuncUTDefAction::CreateASTConsumer(clang::CompilerInstance& compiler, llvm::StringRef inFile)
-{
-   return new FuncUTDefConsumer(  &compiler.getASTContext(), inFile.str() );
-}
-
-void FuncUTDefAction::EndSourceFileAction(){
-   Writer::CreateUnitTestFile(  getCurrentFile().str(), getCompilerInstance().getSourceManager() );
-}

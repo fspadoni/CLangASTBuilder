@@ -1,19 +1,15 @@
 #include "MockVisitor.h"
 
-#include "utils.h"
-#include "writer.h"
-
 #include <boost/filesystem.hpp>
+#include <clang/Basic/SourceManager.h>
+#include <clang/AST/ASTContext.h>
 
-#include <iostream>
-#include <fstream>
+#include "utils.h"
 
 
 MockVisitor::MockVisitor(clang::ASTContext* context, std::string fileName):  _context(context), _fileName(fileName) 
 {
   results::get().functionDecls.clear();
-  results::get().functionToUnitTest.clear();
-  results::get().includesForUT.clear();
 }
 
 
@@ -70,29 +66,3 @@ bool MockVisitor::VisitStmt(clang::Stmt* stmt)
    return true;
 }
 
-
-MockConsumer::MockConsumer(clang::ASTContext*  context,
-                           std::string         fileName )
-   : ASTConsumer()
-   , _visitor( nullptr )
-{
-   _visitor =  new MockVisitor( context, fileName );
-}
-
-
-
-void MockConsumer::HandleTranslationUnit(clang::ASTContext& ctx) 
-{
-   _visitor->TraverseDecl(ctx.getTranslationUnitDecl());
-}
-
-
-
-clang::ASTConsumer* MockAction::CreateASTConsumer(clang::CompilerInstance& compiler, llvm::StringRef inFile)
-{
-   return new MockConsumer(  &compiler.getASTContext(), inFile.str() );
-}
-
-void MockAction::EndSourceFileAction(){
-   Writer::CreateMockFile(  getCurrentFile().str(), getCompilerInstance().getSourceManager() );
-}

@@ -37,11 +37,10 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 set ( HEADER_FILES
       MockVisitor.h
       FuncUTDefVisitor.h
-      #FuncUTDeclVisitor.h
+      StructVisitor.h
       writer.h
-      #visitors.h
-      #actions.h
-      #matchers.h
+      Consumer.h
+      Action.h
       utils.h
       )
 
@@ -49,11 +48,10 @@ set ( SOURCE_FILES
       main.cpp
       MockVisitor.cpp
       FuncUTDefVisitor.cpp
-      #FuncUTDeclVisitor.cpp
+      StructVisitor.cpp
       writer.cpp
-      #visitors.cpp
-      #actions.cpp
-      #matchers.cpp
+      Consumer.cpp
+      Action.cpp
       utils.cpp
       )
     

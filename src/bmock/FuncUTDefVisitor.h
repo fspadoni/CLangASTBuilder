@@ -2,15 +2,15 @@
 #define _CLangASTBuilder_FuncUTDefVisitor_h__ 
 
 #include <clang/AST/RecursiveASTVisitor.h>
-#include <clang/AST/ASTConsumer.h>
-#include <clang/AST/ASTContext.h>
-#include <clang/Frontend/FrontendAction.h>
-#include <clang/Frontend/CompilerInstance.h>
-#include <clang/Rewrite/Core/Rewriter.h>
+//#include <clang/AST/ASTConsumer.h>
+//#include <clang/AST/ASTContext.h>
+//#include <clang/Frontend/FrontendAction.h>
+//#include <clang/Frontend/CompilerInstance.h>
+//#include <clang/Rewrite/Core/Rewriter.h>
 
-#include <set>
+//#include <set>
 #include <string>
-#include <sstream>
+//#include <sstream>
 
 class FuncUTDefVisitor : public clang::RecursiveASTVisitor<FuncUTDefVisitor>
 {
@@ -45,34 +45,5 @@ public:
 };
 
 
-
-class FuncUTDefConsumer : public clang::ASTConsumer 
-{
-
-   FuncUTDefVisitor* _defVisitor;
-   FuncUTDeclVisitor* _declVisitor;
-
-public:
-
-   FuncUTDefConsumer(clang::ASTContext*     context,  std::string fileName );
-
-
-   virtual void HandleTranslationUnit(clang::ASTContext& ctx) override;
-
-};
-
-
-class FuncUTDefAction : public clang::ASTFrontendAction
-{
-
-public:
-
-   FuncUTDefAction() {};
-
-   virtual clang::ASTConsumer* CreateASTConsumer(clang::CompilerInstance& compiler, llvm::StringRef inFile) override;
-   
-   virtual void EndSourceFileAction() override;
-
-};
-
 #endif // _CLangASTBuilder_FuncUTDefVisitor_h__
+

@@ -201,3 +201,59 @@ void Writer::CreateUnitTestFile(const std::string& fileName, const clang::Source
    std::cout << "file written: " << outputFileName << std::endl;
 
 }
+
+
+void Writer::CreateSerializationFile(const std::string& fileName, const clang::SourceManager& sourceMgr){
+   std::ostringstream out;
+
+   boost::filesystem::path fpathUT(fileName);
+   std::string fnameUT = fpathUT.filename().string();
+
+   std::set<std::string> includePaths;
+   
+   for ( auto structDecl : results::get().structDecls )
+   {
+      // get declaration source location
+      const clang::SourceLocation declSrcLoc = structDecl->getSourceRange().getBegin();
+      const std::string declSrcFile = sourceMgr.getFilename(declSrcLoc).str();
+
+      boost::filesystem::path p(declSrcFile);
+
+      includePaths.insert( p.filename().string() );
+   }
+
+   out << "/* @owner \\TODO */\n";
+   out << "/**\n";
+   out << " * @file  " << fnameUT << "-serializer.h \n";
+   out << " * @brief \\TODO.\n";
+   out << " *\n";
+   out << " * @copyright Copyright of this program is the property of AMADEUS, without\n";
+   out << " * whose written permission reproduction in whole or in part is prohibited.\n";
+   out << " *\n";
+   out << " */\n\n";
+
+   out << "extern \"C\"{\n";
+   for ( auto include : includePaths ){
+      out << "#include \"" << include <<  "\"\n";
+   }
+
+   for ( auto structDecl : results::get().structDecls )
+   {
+      out << "Define Structure: " << structDecl->getNameAsString() << "\n";
+      out << "Fields:\n";
+      for ( const auto field : structDecl->fields() ){
+         out << "\t" << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
+      }
+      out << "\n";
+   }
+
+   std::ofstream outputFile;
+   std::string outputFileName = fileName + "-serializer.h";
+   outputFile.open( outputFileName, std::fstream::out );
+   outputFile << out.str();
+   outputFile.close();
+  
+   std::cout << "file written: " << outputFileName << std::endl;
+
+}
+
