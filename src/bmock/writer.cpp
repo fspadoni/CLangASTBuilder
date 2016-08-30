@@ -210,7 +210,20 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
    std::string fnameUT = fpathUT.filename().string();
 
    std::set<std::string> includePaths;
-   
+
+   for ( auto typedefDecl : results::get().typedefNameDecls )
+   {
+      // get declaration source location
+      const clang::SourceLocation declSrcLoc = typedefDecl->getSourceRange().getBegin();
+      const std::string declSrcFile = sourceMgr.getFilename(declSrcLoc).str();
+      const std::string includeFile =  boost::filesystem::path(declSrcFile).filename().string();
+      
+      if ( !includeFile.empty() )
+      {
+         includePaths.insert( includeFile );
+      }
+   }
+
    for ( auto structDecl : results::get().structDecls )
    {
       // get declaration source location
@@ -220,10 +233,74 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
       
       if ( !includeFile.empty() )
       {
-	includePaths.insert( includeFile );
+         includePaths.insert( includeFile );
       }
    }
 
+
+   for ( auto typedefDecl : results::get().typedefNameDecls )
+   {
+      
+      // get declaration source location
+      const clang::SourceLocation declSrcLoc = typedefDecl->getSourceRange().getBegin();
+      
+      // this way append the row and column to the name string
+      const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
+
+      out << "/**" <<std::endl;
+      out << " * name: " << typedefDecl->getNameAsString() << std::endl;
+      out << " * file: " << declSrcFile << std::endl;
+      out << " */" << std::endl;
+      
+      const clang::RecordDecl* structDecl = typedefDecl->getUnderlyingType()->getAsStructureType()->getDecl();
+      out << "typedef struct " << structDecl->getNameAsString() << "\n{\n";
+      
+      for ( const auto field : structDecl->fields() ){
+         out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
+      }
+      
+      out << "} " << typedefDecl->getNameAsString() << ";\n\n";
+   }
+   
+   
+   for ( auto structDecl : results::get().structDecls )
+   {
+      // get declaration source location
+      const clang::SourceLocation declSrcLoc = structDecl->getSourceRange().getBegin();
+      
+      // this way append the row and column to the name string
+      const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
+
+      out << "/**" <<std::endl;
+      out << " * name: " << structDecl->getNameAsString() << std::endl;
+      out << " * file: " << declSrcFile << std::endl;
+      out << " */" << std::endl;
+      
+      if ( structDecl->isAnonymousStructOrUnion() )
+      {
+         out << "typedef struct " << "\n{\n";
+         
+         for ( const auto field : structDecl->fields() )
+         {
+            out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
+         }
+         
+         out << "} " << structDecl->getNameAsString() << ";\n\n";
+      }
+      else
+      {
+         out << "struct " << structDecl->getNameAsString() << "\n{\n";
+          
+         for ( const auto field : structDecl->fields() )
+         {
+            out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
+         }
+         
+         out << "};\n\n";
+      }
+  
+   }
+   
    out << "/* @owner \\TODO */\n";
    out << "/**\n";
    out << " * @file  " << fnameUT << "-serializer.h \n";
@@ -240,60 +317,16 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
    }
    out << "}\n\n\n";
    
-   for ( auto structDecl : results::get().structDecls )
-   {
-      // get declaration source location
-      const clang::SourceLocation declSrcLoc = structDecl->getSourceRange().getBegin();
-      
-      // this way append the row and column to the name string
-      const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
+   
 
-      out << "/**" <<std::endl;
-      out << " * name: " << structDecl->getNameAsString() << std::endl;
-      out << " * file: " << declSrcFile << std::endl;
-      out << " */" << std::endl;
-      
-      
-      if (structDecl->isAnonymousStructOrUnion() )
-      {
-	out << "Anonymous ";
-      }
-      
-      clang::TypedefNameDecl* tag = structDecl->getTypedefNameForAnonDecl();
-      
-      clang::IdentifierInfo *info = structDecl->getIdentifier();
-      if ( info != nullptr )
-      {
-	out << info->getName().str();
-      }
-      
-      if( tag != nullptr){
-	 out << "typedef struct " << tag->getNameAsString() << " NoTypeDef " << "\n{\n";
-      } else
-      {
-	 out << "typedef struct " <<  structDecl->getNameAsString() << "\t"  <<  "\n{\n";
-      }
-  
-      for ( const auto field : structDecl->fields() ){
-         out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
-      }
-      
-      if( tag == nullptr)
-      {
-	out << "} " << structDecl->getKindName().str() << ";\n\n";
-      }
-      else
-      {
-	 out << "} " << tag->getNameAsString() << ";\n\n";
-      };
-   }
-
+   
+   
    std::ofstream outputFile;
    std::string outputFileName = fileName + "-serializer.h";
    outputFile.open( outputFileName, std::fstream::out );
    outputFile << out.str();
    outputFile.close();
-  
+
    std::cout << "file written: " << outputFileName << std::endl;
 
 }
