@@ -1,17 +1,17 @@
-#include "StructVisitor.h"
+#include "TypedefVisitor.h"
 
 #include <boost/filesystem.hpp>
 
 #include "utils.h"
 
 
-StructVisitor::StructVisitor(clang::ASTContext* context, std::string fileName):  _context(context), _fileName(fileName)
+TypedefVisitor::TypedefVisitor(clang::ASTContext* context, std::string fileName):  _context(context), _fileName(fileName)
 {
   results::get().structDecls.clear();
 }
 
 
-bool StructVisitor::VisitDecl(clang::Decl* decl)
+bool TypedefVisitor::VisitDecl(clang::Decl* decl)
 {
 
   const clang::RecordDecl* structure = llvm::dyn_cast<clang::RecordDecl>(decl);

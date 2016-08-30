@@ -216,10 +216,12 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
       // get declaration source location
       const clang::SourceLocation declSrcLoc = structDecl->getSourceRange().getBegin();
       const std::string declSrcFile = sourceMgr.getFilename(declSrcLoc).str();
-
-      boost::filesystem::path p(declSrcFile);
-
-      includePaths.insert( p.filename().string() );
+      const std::string includeFile =  boost::filesystem::path(declSrcFile).filename().string();
+      
+      if ( !includeFile.empty() )
+      {
+	includePaths.insert( includeFile );
+      }
    }
 
    out << "/* @owner \\TODO */\n";
@@ -236,15 +238,54 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
    for ( auto include : includePaths ){
       out << "#include \"" << include <<  "\"\n";
    }
-
+   out << "}\n\n\n";
+   
    for ( auto structDecl : results::get().structDecls )
    {
-      out << "Define Structure: " << structDecl->getNameAsString() << "\n";
-      out << "Fields:\n";
-      for ( const auto field : structDecl->fields() ){
-         out << "\t" << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
+      // get declaration source location
+      const clang::SourceLocation declSrcLoc = structDecl->getSourceRange().getBegin();
+      
+      // this way append the row and column to the name string
+      const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
+
+      out << "/**" <<std::endl;
+      out << " * name: " << structDecl->getNameAsString() << std::endl;
+      out << " * file: " << declSrcFile << std::endl;
+      out << " */" << std::endl;
+      
+      
+      if (structDecl->isAnonymousStructOrUnion() )
+      {
+	out << "Anonymous ";
       }
-      out << "\n";
+      
+      clang::TypedefNameDecl* tag = structDecl->getTypedefNameForAnonDecl();
+      
+      clang::IdentifierInfo *info = structDecl->getIdentifier();
+      if ( info != nullptr )
+      {
+	out << info->getName().str();
+      }
+      
+      if( tag != nullptr){
+	 out << "typedef struct " << tag->getNameAsString() << " NoTypeDef " << "\n{\n";
+      } else
+      {
+	 out << "typedef struct " <<  structDecl->getNameAsString() << "\t"  <<  "\n{\n";
+      }
+  
+      for ( const auto field : structDecl->fields() ){
+         out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
+      }
+      
+      if( tag == nullptr)
+      {
+	out << "} " << structDecl->getKindName().str() << ";\n\n";
+      }
+      else
+      {
+	 out << "} " << tag->getNameAsString() << ";\n\n";
+      };
    }
 
    std::ofstream outputFile;

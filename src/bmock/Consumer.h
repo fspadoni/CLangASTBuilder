@@ -7,6 +7,7 @@
 class FuncUTDefVisitor;
 class FuncUTDeclVisitor;
 class StructVisitor;
+class TypedefVisitor;
 class MockVisitor;
 
 class Consumer : public clang::ASTConsumer
@@ -16,6 +17,7 @@ class Consumer : public clang::ASTConsumer
    FuncUTDeclVisitor*   _declVisitor;
    StructVisitor*       _structVisitor;
    MockVisitor*         _mockVisitor;
+   TypedefVisitor*	_typedefVisitor;
 
 public:
 

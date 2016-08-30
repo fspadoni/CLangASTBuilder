@@ -38,6 +38,7 @@ set ( HEADER_FILES
       MockVisitor.h
       FuncUTDefVisitor.h
       StructVisitor.h
+      TypedefVisitor.h
       writer.h
       Consumer.h
       Action.h
@@ -49,6 +50,7 @@ set ( SOURCE_FILES
       MockVisitor.cpp
       FuncUTDefVisitor.cpp
       StructVisitor.cpp
+      TypedefVisitor.cpp
       writer.cpp
       Consumer.cpp
       Action.cpp
@@ -108,7 +110,7 @@ endforeach()
 
 
 
-add_executable( buildMocks ${HEADER_FILES} ${SOURCE_FILES} )
+add_executable( ${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} )
 
 
 
@@ -120,4 +122,11 @@ link_directories("/./usr/lib64")
 
 
 # statically link with LibClang
-target_link_libraries(buildMocks ${Boost_LIBRARIES} ${LLVM_LIB_LIBRARY} ${CLANG_LIBS} )
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${LLVM_LIB_LIBRARY} ${CLANG_LIBS} )
+
+#add_custom_command( TARGET ${PROJECT_NAME} 
+#		    POST_BUILD 
+#		    COMMAND ${CMAKE_COMMAND} -E 
+#		    copy ${CMAKE_BINARY_DIR}/${PROJECT_NAME}  ~/workspaces/CommercialCode/Currency/build_Linux-XSeries_Release
+#		    COMMENT "Copy buildMocks to ~/workspaces/CommercialCode/Currency/build_Linux-XSeries_Release"
+#		    )
