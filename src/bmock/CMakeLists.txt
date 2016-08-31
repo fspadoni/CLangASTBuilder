@@ -39,7 +39,7 @@ set ( HEADER_FILES
       FuncUTDefVisitor.h
       StructVisitor.h
       TypedefVisitor.h
-      UsedStructVisitor.h
+      #UsedStructVisitor.h
       writer.h
       Consumer.h
       Action.h
@@ -52,7 +52,7 @@ set ( SOURCE_FILES
       FuncUTDefVisitor.cpp
       StructVisitor.cpp
       TypedefVisitor.cpp
-      UsedStructVisitor.cpp
+      #UsedStructVisitor.cpp
       writer.cpp
       Consumer.cpp
       Action.cpp
