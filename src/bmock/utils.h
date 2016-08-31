@@ -8,6 +8,7 @@ namespace clang {
    class FunctionDecl;
    class RecordDecl;
    class TypedefNameDecl;
+   class Type;
 }
 
 
@@ -25,6 +26,7 @@ public:
    std::set<const clang::FunctionDecl*>      functionDecls;
    std::set<const clang::FunctionDecl*>      functionToUnitTest;
    std::set<const clang::RecordDecl*>        structDecls;
+   std::set<std::string>                     functionTypeNames;
    std::set<const clang::TypedefNameDecl*>   typedefNameDecls;
    std::set<std::string>                     includesForUT;
 };
@@ -39,6 +41,7 @@ public:
 
    static std::string changeFileExtension(const std::string& fileName, const std::string& newExtension);
 
+   static void fillFunctionQualTypes(void);
 };
 
 

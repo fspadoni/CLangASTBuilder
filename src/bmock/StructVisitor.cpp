@@ -26,13 +26,14 @@ bool StructVisitor::VisitDecl(clang::Decl* decl)
       if( structdef == nullptr )
          return true;
       
-      // TO DO: check if this consition is weak
-      /*
-      if ( structDecl->getTypedefNameForAnonDecl() != nullptr )
-      {
-      results::get().structDecls.insert(structure);
-      }
-      */
+
+      
+      //  check if the type is used in function types
+      const std::string typeName = structdef->getNameAsString();// getTypeForDecl()->getCanonicalTypeInternal().getTypePtr();
+      if ( results::get().functionTypeNames.find( typeName ) == results::get().functionTypeNames.end() )
+         return true;
+         
+      
       
       //  check if this RecordDecl is already in a TypedefDecl
       for (auto typedefIter : results::get().typedefNameDecls )

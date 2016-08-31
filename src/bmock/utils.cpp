@@ -19,3 +19,43 @@ std::string utils::changeFileExtension(const std::string& fileName, const std::s
 {
    return boost::filesystem::change_extension(fileName, newExt).string();
 }
+
+
+void utils::fillFunctionQualTypes(void)
+{
+   results::get().functionTypeNames.clear();
+   
+   for ( const clang::FunctionDecl* funcDecl : results::get().functionDecls )
+   {
+      const clang::QualType returnType = funcDecl->getReturnType();
+      
+      results::get().functionTypeNames.insert( returnType.getAsString() );
+      
+      const int numParms = funcDecl->getNumParams();   
+      for ( int i=0; i<numParms; ++i)
+      {
+         const clang::ParmVarDecl* _currentParam = funcDecl->getParamDecl(i);
+         //results::get().functionTypes.insert( _currentParam->getOriginalType().getTypePtr() );
+         results::get().functionTypeNames.insert( _currentParam->getOriginalType().getAsString() );// .getCanonicalType().getTypePtr() );
+         //results::get().functionTypeNames.insert( _currentParam->getType().getCanonicalType().getTypePtr() );
+      }
+   }
+   
+   
+   for ( const clang::FunctionDecl* funcDecl : results::get().functionToUnitTest )
+   {
+      const clang::QualType returnType = funcDecl->getReturnType();
+      
+      results::get().functionTypeNames.insert( returnType.getAsString() );
+      
+      const int numParms = funcDecl->getNumParams();   
+      for ( int i=0; i<numParms; ++i)
+      {
+         const clang::ParmVarDecl* _currentParam = funcDecl->getParamDecl(i);
+         //results::get().functionTypes.insert( _currentParam->getOriginalType().getTypePtr() );
+         results::get().functionTypeNames.insert( _currentParam->getOriginalType().getAsString() );//.getCanonicalType().getTypePtr() );
+         //results::get().functionTypeNames.insert( _currentParam->getType().getCanonicalType().getTypePtr() );
+      }
+   }
+   
+}

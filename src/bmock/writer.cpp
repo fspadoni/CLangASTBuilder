@@ -238,28 +238,52 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
    }
 
 
+   out << "/* @owner \\TODO */\n";
+   out << "/**\n";
+   out << " * @file  " << fnameUT << "-serializer.h \n";
+   out << " * @brief \\TODO.\n";
+   out << " *\n";
+   out << " * @copyright Copyright of this program is the property of AMADEUS, without\n";
+   out << " * whose written permission reproduction in whole or in part is prohibited.\n";
+   out << " *\n";
+   out << " */\n\n";
+
+   out << "extern \"C\"{\n";
+   for ( auto include : includePaths ){
+      out << "#include \"" << include <<  "\"\n";
+   }
+   out << "}\n\n\n";
+   
+   
+   
    for ( auto typedefDecl : results::get().typedefNameDecls )
    {
       
-      // get declaration source location
-      const clang::SourceLocation declSrcLoc = typedefDecl->getSourceRange().getBegin();
-      
-      // this way append the row and column to the name string
-      const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
+      const clang::RecordType* structType = typedefDecl->getUnderlyingType()->getAsStructureType();
+      if( structType != nullptr ){
+         
+         // get declaration source location
+         const clang::SourceLocation declSrcLoc = typedefDecl->getSourceRange().getBegin();
+         
+         // this way append the row and column to the name string
+         const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
 
-      out << "/**" <<std::endl;
-      out << " * name: " << typedefDecl->getNameAsString() << std::endl;
-      out << " * file: " << declSrcFile << std::endl;
-      out << " */" << std::endl;
+         out << "/**" <<std::endl;
+         out << " * name: " << typedefDecl->getNameAsString() << std::endl;
+         out << " * file: " << declSrcFile << std::endl;
+         out << " */" << std::endl;
       
-      const clang::RecordDecl* structDecl = typedefDecl->getUnderlyingType()->getAsStructureType()->getDecl();
-      out << "typedef struct " << structDecl->getNameAsString() << "\n{\n";
       
-      for ( const auto field : structDecl->fields() ){
-         out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
+         const clang::RecordDecl* structDecl = structType->getDecl();
+         out << "typedef struct " << structDecl->getNameAsString() << "\n{\n";
+      
+      
+         for ( const auto field : structDecl->fields() ){
+            out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
+         }
+      
+         out << "} " << typedefDecl->getNameAsString() << ";\n\n";
       }
-      
-      out << "} " << typedefDecl->getNameAsString() << ";\n\n";
    }
    
    
@@ -299,25 +323,7 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
          out << "};\n\n";
       }
   
-   }
-   
-   out << "/* @owner \\TODO */\n";
-   out << "/**\n";
-   out << " * @file  " << fnameUT << "-serializer.h \n";
-   out << " * @brief \\TODO.\n";
-   out << " *\n";
-   out << " * @copyright Copyright of this program is the property of AMADEUS, without\n";
-   out << " * whose written permission reproduction in whole or in part is prohibited.\n";
-   out << " *\n";
-   out << " */\n\n";
-
-   out << "extern \"C\"{\n";
-   for ( auto include : includePaths ){
-      out << "#include \"" << include <<  "\"\n";
-   }
-   out << "}\n\n\n";
-   
-   
+   } 
 
    
    

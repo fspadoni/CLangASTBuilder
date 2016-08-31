@@ -5,6 +5,7 @@
 #include "FuncUTDefVisitor.h"
 #include "StructVisitor.h"
 #include "TypedefVisitor.h"
+#include "utils.h"
 
 #include <clang/AST/ASTContext.h>
 
@@ -30,7 +31,11 @@ void Consumer::HandleTranslationUnit(clang::ASTContext& ctx)
 {
    _mockVisitor->TraverseDecl(ctx.getTranslationUnitDecl());
    _defVisitor->TraverseDecl(ctx.getTranslationUnitDecl());
-   _declVisitor->TraverseDecl(ctx.getTranslationUnitDecl());   
+   _declVisitor->TraverseDecl(ctx.getTranslationUnitDecl());
+
+   // fill the function params set
+   utils::fillFunctionQualTypes();
+   
    _typedefVisitor->TraverseDecl(ctx.getTranslationUnitDecl());
    _structVisitor->TraverseDecl(ctx.getTranslationUnitDecl());
 }
