@@ -23,21 +23,24 @@ std::string utils::changeFileExtension(const std::string& fileName, const std::s
 
 void utils::fillFunctionQualTypes(void)
 {
-   results::get().functionTypeNames.clear();
+   results::get().functionDeclTypes.clear();
+   
+   //canonical Types: http://clang.llvm.org/docs/InternalsManual.html#canonical-types
    
    for ( const clang::FunctionDecl* funcDecl : results::get().functionDecls )
    {
       const clang::QualType returnType = funcDecl->getReturnType();
       
-      results::get().functionTypeNames.insert( returnType.getAsString() );
+      results::get().functionDeclTypes.insert( returnType->getCanonicalTypeInternal().getTypePtrOrNull() );
+
       
       const int numParms = funcDecl->getNumParams();   
       for ( int i=0; i<numParms; ++i)
       {
          const clang::ParmVarDecl* _currentParam = funcDecl->getParamDecl(i);
-         //results::get().functionTypes.insert( _currentParam->getOriginalType().getTypePtr() );
-         results::get().functionTypeNames.insert( _currentParam->getOriginalType().getAsString() );// .getCanonicalType().getTypePtr() );
-         //results::get().functionTypeNames.insert( _currentParam->getType().getCanonicalType().getTypePtr() );
+         const clang::QualType qualType = _currentParam->getOriginalType();
+         
+         results::get().functionDeclTypes.insert( qualType->getCanonicalTypeInternal().getTypePtrOrNull() ); 
       }
    }
    
@@ -46,15 +49,15 @@ void utils::fillFunctionQualTypes(void)
    {
       const clang::QualType returnType = funcDecl->getReturnType();
       
-      results::get().functionTypeNames.insert( returnType.getAsString() );
-      
+      results::get().functionDeclTypes.insert( returnType->getCanonicalTypeInternal().getTypePtrOrNull() );
+         
       const int numParms = funcDecl->getNumParams();   
       for ( int i=0; i<numParms; ++i)
       {
-         const clang::ParmVarDecl* _currentParam = funcDecl->getParamDecl(i);
-         //results::get().functionTypes.insert( _currentParam->getOriginalType().getTypePtr() );
-         results::get().functionTypeNames.insert( _currentParam->getOriginalType().getAsString() );//.getCanonicalType().getTypePtr() );
-         //results::get().functionTypeNames.insert( _currentParam->getType().getCanonicalType().getTypePtr() );
+         const clang::ParmVarDecl* _currentParam = funcDecl->getParamDecl(i);   
+         const clang::QualType qualType = _currentParam->getOriginalType();
+         
+         results::get().functionDeclTypes.insert( qualType->getCanonicalTypeInternal().getTypePtrOrNull() );
       }
    }
    

@@ -3,6 +3,8 @@
 #include "utils.h"
 
 #include <clang/AST/Decl.h>
+#include <clang/AST/PrettyPrinter.h>
+
 #include <boost/filesystem/convenience.hpp>
 
 #include <iostream>
@@ -258,25 +260,24 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
    
    for ( auto typedefDecl : results::get().typedefNameDecls )
    {
+      const clang::QualType typedefQualType = typedefDecl->getUnderlyingType();
       
-      const clang::RecordType* structType = typedefDecl->getUnderlyingType()->getAsStructureType();
-      if( structType != nullptr ){
-         
-         // get declaration source location
-         const clang::SourceLocation declSrcLoc = typedefDecl->getSourceRange().getBegin();
-         
-         // this way append the row and column to the name string
-         const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
+       // get declaration source location
+      const clang::SourceLocation declSrcLoc = typedefDecl->getSourceRange().getBegin();
+      
+      // this way append the row and column to the name string
+      const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
 
-         out << "/**" <<std::endl;
-         out << " * name: " << typedefDecl->getNameAsString() << std::endl;
-         out << " * file: " << declSrcFile << std::endl;
-         out << " */" << std::endl;
-      
-      
+      out << "/**" <<std::endl;
+      out << " * name: " << typedefDecl->getNameAsString() << std::endl;
+      out << " * file: " << declSrcFile << std::endl;
+      out << " */" << std::endl;
+         
+     
+      if( const clang::RecordType* structType = typedefQualType->getAsStructureType() ){
+
          const clang::RecordDecl* structDecl = structType->getDecl();
          out << "typedef struct " << structDecl->getNameAsString() << "\n{\n";
-      
       
          for ( const auto field : structDecl->fields() ){
             out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
@@ -284,46 +285,90 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
       
          out << "} " << typedefDecl->getNameAsString() << ";\n\n";
       }
+      
+      else if ( const clang::EnumType* enumType = typedefQualType->getAs<clang::EnumType>() ) {
+   
+         const clang::EnumDecl* enumDecl = enumType->getDecl();
+         
+         out << "typedef enum " << enumDecl->getNameAsString()  << " {\n";
+         
+         for ( auto iter : enumDecl->enumerators() )
+         {
+            out << "   " << iter->getNameAsString() << "\t = " << iter->getInitVal().toString(10) << ",\n";
+         }
+         
+         const std::string qualTypeName = typedefQualType.getAsString();
+         
+         const clang::QualType canonicalQualType = typedefQualType->getCanonicalTypeInternal();
+         const std::string canonicalTypeName = canonicalQualType.getAsString();
+         
+         out << "} " << canonicalTypeName << ";\n\n";         
+      }
+      
+      else if ( const clang::TypedefType* typedefType = typedefQualType->getAs<clang::TypedefType>() ) {
+         
+         const clang::TypedefNameDecl* typedefDecl = typedefType->getDecl();
+         
+         const clang::QualType canonicalQualType = typedefType->getCanonicalTypeInternal();
+         const std::string canonicalTypeName = canonicalQualType.getAsString();
+         
+         out << "typedef " << canonicalTypeName << " " << typedefDecl->getNameAsString()  << "\n";
+         
+      }
+
+       else if ( const clang::BuiltinType* typedefType = typedefQualType->getAs<clang::BuiltinType>() ) {
+         
+         //const clang::BuiltinDecl* typedefDecl = typedefType->getDecl();
+         
+         //const clang::QualType canonicalQualType = typedefType->getCanonicalTypeInternal();
+         //const std::string canonicalTypeName = canonicalQualType.getAsString();
+         
+         out << "typedef " << typedefQualType.getAsString() << " " << typedefDecl->getNameAsString()  << ";\n";
+         
+         //out << "typedef " << typedefType->getName( clang::PrintingPolicy(clang::LangOptions()) ).str() << " " << typedefDecl->getNameAsString()  << ";\n";
+         
+      }
+      
    }
    
-   
-   for ( auto structDecl : results::get().structDecls )
-   {
-      // get declaration source location
-      const clang::SourceLocation declSrcLoc = structDecl->getSourceRange().getBegin();
-      
-      // this way append the row and column to the name string
-      const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
 
-      out << "/**" <<std::endl;
-      out << " * name: " << structDecl->getNameAsString() << std::endl;
-      out << " * file: " << declSrcFile << std::endl;
-      out << " */" << std::endl;
-      
-      if ( structDecl->isAnonymousStructOrUnion() )
-      {
-         out << "typedef struct " << "\n{\n";
-         
-         for ( const auto field : structDecl->fields() )
-         {
-            out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
-         }
-         
-         out << "} " << structDecl->getNameAsString() << ";\n\n";
-      }
-      else
-      {
-         out << "struct " << structDecl->getNameAsString() << "\n{\n";
-          
-         for ( const auto field : structDecl->fields() )
-         {
-            out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
-         }
-         
-         out << "};\n\n";
-      }
-  
-   } 
+//   for ( auto structDecl : results::get().istructDecls )
+//   {
+//      // get declaration source location
+//      const clang::SourceLocation declSrcLoc = structDecl->getSourceRange().getBegin();
+//      
+//      // this way append the row and column to the name string
+//      const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
+//
+//      out << "/**" <<std::endl;
+//      out << " * name: " << structDecl->getNameAsString() << std::endl;
+//      out << " * file: " << declSrcFile << std::endl;
+//      out << " */" << std::endl;
+//      
+//      if ( structDecl->isAnonymousStructOrUnion() )
+//      {
+//         out << "typedef struct " << "\n{\n";
+//         
+//         for ( const auto field : structDecl->fields() )
+//         {
+//            out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
+//         }
+//         
+//         out << "} " << structDecl->getNameAsString() << ";\n\n";
+//      }
+//      else
+//      {
+//         out << "struct " << structDecl->getNameAsString() << "\n{\n";
+//          
+//         for ( const auto field : structDecl->fields() )
+//         {
+//            out << "   " << field->getType().getAsString() << "\t" << field->getNameAsString() << "\n";
+//         }
+//         
+//         out << "};\n\n";
+//      }
+//  
+//   } 
 
    
    

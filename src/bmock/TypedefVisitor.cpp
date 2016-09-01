@@ -1,10 +1,13 @@
 #include "TypedefVisitor.h"
+#include "utils.h"
+
+
+#include <clang/AST/ASTContext.h>
 
 #include <boost/filesystem.hpp>
 
-#include "utils.h"
-
 #include <iostream>
+
 
 TypedefVisitor::TypedefVisitor(clang::ASTContext* context, std::string fileName):  _context(context), _fileName(fileName)
 {
@@ -20,49 +23,36 @@ bool TypedefVisitor::VisitDecl(clang::Decl* decl)
    if ( type_def == nullptr )
       return true;
    
-   const clang::Type* type = type_def->getCanonicalDecl()->getTypeForDecl();//  ->getCanonicalDecl()->getUnderlyingType()->getAsStructureType();
-   const std::string typeName = type_def->getCanonicalDecl()->getNameAsString();
-   //if( type_struct == nullptr )
-   //   return true;
-   
-   //const clang::RecordDecl* structure = type_struct->getDecl();
-   //if( structure == nullptr )
-   //   return true;
-   
-   //const clang::RecordDecl* structureDecl = structure->getDefinition();
-   //if( structureDecl == nullptr )
-   //   return true;
+   //const std::string typeName = type_def->getCanonicalDecl()->getNameAsString();   
 
-   //clang::QualType canonicalQualType = type_def->getUnderlyingType();
-   //if (canonicalQualType.isNull())
-   //   return true;
+   //canonical Types: http://clang.llvm.org/docs/InternalsManual.html#canonical-types
+   const clang::QualType qualType = type_def->getCanonicalDecl()->getUnderlyingType();
+   const clang::Type* declType = qualType->getCanonicalTypeInternal().getTypePtrOrNull();
    
-   //const clang::TypedefType* type_defType = type_def->getCanonicalDecl()->getUnderlyingType()->getAs<const clang::TypedefType>();
-   //const clang::Type* canonicalType = type_def->getCanonicalDecl()->getUnderlyingType()->getAs<clang::TypedefType>();
-   //if ( canonicalType == nullptr )
-   //   return true;
+   if ( declType == nullptr )
+      return true;
    
-   if ( results::get().functionTypeNames.find( typeName ) ==  results::get().functionTypeNames.end() ){
-      //std::cout << type->get ->getUnderlyingType().getAsString() << " Not Found\n";
-      std::cout << type_def->getNameAsString() << " Not Found\n";
+   //if ( declType->isBuiltinType() == true )
+     // return true;
+   
+   // get declaration source location
+   const clang::SourceLocation declSrcLoc = type_def->getSourceRange().getBegin();
+   const std::string declSrcFile = _context->getSourceManager().getFilename(declSrcLoc).str();
+   // TO DO: fix this
+   // temporary check
+   // WEAK CHECK if declaration is in CommercialCode path
+   if ( declSrcFile.find( "CommercialCode") == std::string::npos )
+   {
+      // this is (probably) a system function
+      //std::cout << "this is (probably) a system function" << std::endl;
       return true;
    }
    
    
-   /*
-   const clang::Type* type = canonicalQualType.getCanonicalType().getTypePtr();
-   if ( results::get().functionTypes.find( type ) ==  results::get().functionTypes.end() )
+   if ( results::get().functionDeclTypes.find( declType ) ==  results::get().functionDeclTypes.end() )
       return true;
-   */
-   
-   
-   //type = structureDecl->getTypeForDecl();
-   //if ( results::get().functionTypes.find( type ) !=  results::get().functionTypes.end() )
-   //   results::get().typedefNameDecls.insert(type_def);
-   
-   std::cout << type_def->getNameAsString() << " Found\n";
+
    results::get().typedefNameDecls.insert(type_def);
-   
    
    return true;
 }

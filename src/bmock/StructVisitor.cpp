@@ -21,39 +21,32 @@ bool StructVisitor::VisitDecl(clang::Decl* decl)
       
    // RecordDecl are class struct and union, we trigger only for struct
    if ( structure->isStruct() ){
+      
       const clang::RecordDecl* structdef = structure->getDefinition();
       // Forward/Partial definition skipped (should not happen)
       if( structdef == nullptr )
          return true;
-      
-
-      
-      //  check if the type is used in function types
-      const std::string typeName = structdef->getNameAsString();// getTypeForDecl()->getCanonicalTypeInternal().getTypePtr();
-      if ( results::get().functionTypeNames.find( typeName ) == results::get().functionTypeNames.end() )
-         return true;
          
-      
-      
+   
+      const clang::Type* declType = structdef->getTypeForDecl();
+      if ( results::get().functionDeclTypes.find( declType ) ==  results::get().functionDeclTypes.end() )
+         return true;
+   
       //  check if this RecordDecl is already in a TypedefDecl
       for (auto typedefIter : results::get().typedefNameDecls )
       {
-         const clang::RecordDecl* type_struct = typedefIter->getUnderlyingType()->getAsStructureType()->getDecl();
+         //canonical Types: http://clang.llvm.org/docs/InternalsManual.html#canonical-types
+         const clang::QualType typedefQualType = typedefIter->getCanonicalDecl()->getUnderlyingType();
+         const clang::Type* typedefDeclType = typedefQualType->getCanonicalTypeInternal().getTypePtrOrNull();
          
-         if ( structdef != type_struct )
+         if ( declType != typedefDeclType )
          {
             results::get().structDecls.insert(structure);
          }
       }
       
-   }
-   //if ( results::get().typedefNameDecls.find() )
-   //results::get().structDecls.insert(structure);//or  structdef ??
-//      for ( const auto clang::TypedefNameDecl type_def : results::typedefNameDecls ){
-//	 if ()
-//      }
-  
+   }  
 
-return true;
+   return true;
 }
 
