@@ -43,8 +43,6 @@ bool TypedefVisitor::VisitDecl(clang::Decl* decl)
    // WEAK CHECK if declaration is in CommercialCode path
    if ( declSrcFile.find( "CommercialCode") == std::string::npos )
    {
-      // this is (probably) a system function
-      //std::cout << "this is (probably) a system function" << std::endl;
       return true;
    }
    

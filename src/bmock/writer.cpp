@@ -260,7 +260,7 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
    
    for ( auto typedefDecl : results::get().typedefNameDecls )
    {
-      const clang::QualType typedefQualType = typedefDecl->getUnderlyingType();
+      const clang::QualType typedefQualType = typedefDecl->getUnderlyingType(); // ->getCanonicalTypeInternal();
       
        // get declaration source location
       const clang::SourceLocation declSrcLoc = typedefDecl->getSourceRange().getBegin();
@@ -312,7 +312,7 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
          const clang::QualType canonicalQualType = typedefType->getCanonicalTypeInternal();
          const std::string canonicalTypeName = canonicalQualType.getAsString();
          
-         out << "typedef " << canonicalTypeName << " " << typedefDecl->getNameAsString()  << "\n";
+         out << "typedef " << canonicalTypeName << " " << typedefDecl->getNameAsString()  << "\n\n";
          
       }
 
@@ -323,7 +323,9 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
          //const clang::QualType canonicalQualType = typedefType->getCanonicalTypeInternal();
          //const std::string canonicalTypeName = canonicalQualType.getAsString();
          
-         out << "typedef " << typedefQualType.getAsString() << " " << typedefDecl->getNameAsString()  << ";\n";
+         //const clang::QualType canonicalQualType = typedefDecl->getCanonicalDecl()->getUnderlyingType();
+         out << "typedef " << typedefQualType.getAsString() << " " << typedefDecl->getNameAsString()  << ";\n\n";
+         
          
          //out << "typedef " << typedefType->getName( clang::PrintingPolicy(clang::LangOptions()) ).str() << " " << typedefDecl->getNameAsString()  << ";\n";
          
