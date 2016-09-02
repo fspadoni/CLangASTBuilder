@@ -1,49 +1,116 @@
-#include "writer.h"
-
-#include "utils.h"
-
-#include <clang/AST/Decl.h>
-#include <clang/AST/PrettyPrinter.h>
-
-#include <boost/filesystem/convenience.hpp>
 
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
+#include <string>
+#include <sstream>
+
+#include "writer.h"
+#include "utils.h"
+
+#include <boost/filesystem/convenience.hpp>
+#include <clang/AST/Decl.h>
+#include <clang/AST/PrettyPrinter.h>
+#include <plustache/plustache_types.hpp>
+#include <plustache/template.hpp>
+
+using std::cout;
+using std::string;
+using std::ifstream;
+using std::stringstream;
+using PlustacheTypes::ObjectType;
+using PlustacheTypes::CollectionType;
+using Plustache::Context;
+using Plustache::template_t;
 
 
-void Writer::BeginFFF(std::ostringstream& out, const std::set<std::string>& includePaths)
-{
 
-   out << "/** " << std::endl;
-   out << " *\n *\n *\n *\n *\n *" << std::endl;
-   out << " */" << std::endl << std::endl << std::endl;
-
-
-   out << "// Include test and utilities mock headers\n";
-   out << "#include \"fff.h\"\n" << std::endl;
-
-   for(  auto include : includePaths ){
-      out << "#include \"" << include << "\"\n";
+std::shared_ptr<const Plustache::Context> Writer::CreateMockContext(const std::set<std::string>            &includePaths,
+                                        const std::set<const clang::FunctionDecl*>   &funcDecls,
+                                        const std::string                      &fileName,
+                                        const clang::SourceManager             &sourceMgr){
+   
+   std::shared_ptr<Plustache::Context> context = std::make_shared<Plustache::Context>();
+   
+   //Context              *c = new Context();
+   ObjectType            Include;
+   ObjectType            Mock;
+   CollectionType        Includes;
+   CollectionType        Mocks;
+   std::ostringstream    out;
+   
+   for(auto iter : includePaths){
+      Include["include"] = iter;
+      Includes.push_back(Include);
    }
-   out << "\nDEFINE_FFF_GLOBALS;\n\n";
+   
 
-   out << "/**" << std::endl;
-   out << " *\tMOCKED FUNCTIONS BEGIN" << std::endl;
-   out << " */" << std::endl << std::endl;
-
+   for ( auto iter : funcDecls ) {
+      
+      Writer::MockFunctionFFF( iter, out, sourceMgr);
+      Mock["definition"] = out.str();
+      Mocks.push_back(Mock);
+      out.clear();
+   }
+   
+   context->add("includes", Includes);
+   context->add("mocks", Mocks);
+   context->add("filename","filename");
+   context->add("newline","\n");
+   
+   return context;
 }
 
-void Writer::EndFFF(std::ostringstream& out)
-{
-   out << std::endl;
-   out << "/**" << std::endl;
-   out << " *\tMOCKED FUNCTIONS END" << std::endl;
-   out << " */" << std::endl << std::endl;
 
+
+void Writer::WriteTemplate(std::shared_ptr<const Plustache::Context>      context,
+                                 const std::string                      &fileName){
+   template_t     t;
+   stringstream   buffer;
+   string         result;
+   
+   boost::filesystem::path full_path( boost::filesystem::current_path() );
+   
+   std::cout << full_path.string();
+   
+   ifstream template_file("../../mock.template");
+   
+   if (template_file.fail() )
+   {
+      std::cout << "template file for mock functions not found";
+      return;
+   }
+   
+   buffer << template_file.rdbuf();
+   string         template_buff(buffer.str());
+   
+   result = t.render(template_buff, *context);
+   
+   std::ofstream outputFile;   
+   std::string outputFileName = fileName + "-mocks.h";   
+   outputFile.open( outputFileName, std::fstream::out );
+   outputFile << result;
+   outputFile.close();
+  
+   std::cout << "file written: " << outputFileName << std::endl;
 }
-void Writer::MockFunctionFFF(const clang::FunctionDecl* funcDecl, std::ostringstream& out)
-{
-         
+
+
+
+void Writer::MockFunctionFFF(const clang::FunctionDecl   *funcDecl,
+                             std::ostringstream          &out,
+                             const clang::SourceManager        &sourceMgr){
+   
+   // get declaration source location
+   const clang::SourceLocation declSrcLoc = funcDecl->getSourceRange().getBegin();
+   // this way append the row and column to the name string
+   const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
+
+   out << "/**" <<std::endl;
+   out << " * name: " << funcDecl->getNameInfo().getName().getAsString() << std::endl;
+   out << " * file: " << declSrcFile << std::endl;
+   out << " */" << std::endl;   
+   
    std::string returnType = funcDecl->getReturnType().getAsString();
 
    std::string isVariadic;
@@ -105,35 +172,10 @@ void Writer::CreateMockFile(const std::string& fileName, const clang::SourceMana
       includePaths.insert( p.filename().string() );
    }
 
-   Writer::BeginFFF( out, includePaths );
+   std::shared_ptr<const Plustache::Context> context = CreateMockContext(includePaths, results::get().functionDecls, fileName, sourceMgr);
 
-   for ( auto funcDecl : results::get().functionDecls )
-   {
-      // get declaration source location
-      const clang::SourceLocation declSrcLoc = funcDecl->getSourceRange().getBegin();
-      
-      //const std::string declSrcFile = sourceMgr.getFilename(declSrcLoc).str();
-      
-      // this way append the row and column to the name string
-      const std::string declSrcFile = declSrcLoc.printToString(sourceMgr);
-
-      out << "/**" <<std::endl;
-      out << " * name: " << funcDecl->getNameInfo().getName().getAsString() << std::endl;
-      out << " * file: " << declSrcFile << std::endl;
-      out << " */" << std::endl;
-     
-      Writer::MockFunctionFFF(funcDecl, out);
-      
-      out << std::endl << std::endl; 
-   }
-
-   std::ofstream outputFile;
-   std::string outputFileName = fileName + "-mocks.h";
-   outputFile.open( outputFileName, std::fstream::out );
-   outputFile << out.str();
-   outputFile.close();
-  
-   std::cout << "file written: " << outputFileName << std::endl;
+   Writer::WriteTemplate(context, fileName);
+   
 }
 
 

@@ -12,19 +12,26 @@ namespace clang {
    class FunctionDecl;
 }
 
+namespace Plustache {
+   class Context;
+}
 
 class Writer 
-{
-
-   static void BeginFFF(std::ostringstream&           out,
-                        const std::set<std::string>&  includePaths);
-
-   static void EndFFF(std::ostringstream& out);
+{   
    
-   static void MockFunctionFFF(const clang::FunctionDecl*   funcDecl,
-                               std::ostringstream&          out);
+   static std::shared_ptr<const Plustache::Context> CreateMockContext(  const std::set<std::string>            &includePaths,
+                                             const std::set<const clang::FunctionDecl*>   &funcDecls,
+                                             const std::string                      &fileName,
+                                             const clang::SourceManager             &sourceMgr);
+   
 
-
+   static void MockFunctionFFF(const clang::FunctionDecl* const    funcDecl,
+                               std::ostringstream&           out,
+                               const clang::SourceManager&   sourceMgr);
+   
+   static void WriteTemplate(   std::shared_ptr<const Plustache::Context>      context,
+                                const std::string  &fileName);
+   
 public:
    
    static void CreateMockFile(const std::string&            fileName,
@@ -35,6 +42,10 @@ public:
    
    static void CreateSerializationFile(const std::string&            filename,
                                        const clang::SourceManager&   sourceMgr);
+  
+   
+   
+   
    
 };
 

@@ -15,6 +15,7 @@
 #include <clang/AST/Expr.h>
 
 
+
 static llvm::cl::OptionCategory testToolCategory("test tool options");
 
 static llvm::cl::extrahelp commonHelp( clang::tooling::CommonOptionsParser::HelpMessage);
@@ -31,7 +32,6 @@ int main(int argc, const char *argv[])
    clang::tooling::ClangTool _tool(_optionParser.getCompilations(), _optionParser.getSourcePathList() );
 
    int result = _tool.run( clang::tooling::newFrontendActionFactory<Action>().get() );
-
 
    return 0;
 }

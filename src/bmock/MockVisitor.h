@@ -16,7 +16,10 @@ public:
    explicit MockVisitor(clang::ASTContext*   context,
                         std::string          fileName);
    
-   bool VisitStmt(clang::Stmt* stmt);
+   
+   //bool VisitStmt(clang::Stmt* stmt);
+   
+   bool VisitCallExpr(clang::CallExpr *call);
    
 };
 

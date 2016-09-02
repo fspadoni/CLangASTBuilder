@@ -59,6 +59,17 @@ set ( SOURCE_FILES
       utils.cpp
       )
     
+set ( SOURCE_PLUSTACHE
+      plustache/plustache_types.hpp
+      plustache/context.hpp
+      plustache/context.cpp
+      plustache/template.cpp
+      plustache/template.hpp
+)
+
+SET( CMAKE_INCLUDE_CURRENT_DIR TRUE )
+
+
 #http://llvm.org/docs/CMake.html#embedding-llvm-in-your-project
 
 # LLVM package
@@ -99,6 +110,7 @@ find_package(Boost REQUIRED
     filesystem
     program_options
     thread
+    regex
 )
 
 # add boost includes
@@ -112,7 +124,7 @@ endforeach()
 
 
 
-add_executable( ${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} )
+add_executable( ${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${SOURCE_PLUSTACHE} )
 
 
 
