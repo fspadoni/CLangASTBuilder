@@ -1,0 +1,34 @@
+/* @owner TODO */
+/**
+ * @file  {{filename}} 
+ * @brief TODO.
+ *
+ * @copyright Copyright of this program is the property of AMADEUS, without
+ * whose written permission reproduction in whole or in part is prohibited.
+ *
+ */
+
+extern "C"{
+{{# includes}}
+#include "{{include}}" {{newline}}
+{{/ includes}}
+}
+
+#include <gtest/gtest.h>
+
+
+
+{{# functionToUnitTest}}
+TEST( {{testFilename}}, Test_{{functionName}})
+{
+   
+}
+{{newline}}
+{{newline}}
+{{/ functionToUnitTest}}
+
+int main(int argc, char *argv[])
+{
+   ::testing::InitGoogleTest(&argc, argv);
+   return RUN_ALL_TESTS();
+}

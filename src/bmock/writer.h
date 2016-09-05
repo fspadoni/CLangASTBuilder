@@ -20,17 +20,23 @@ class Writer
 {   
    
    static std::shared_ptr<const Plustache::Context> CreateMockContext(  const std::set<std::string>            &includePaths,
-                                             const std::set<const clang::FunctionDecl*>   &funcDecls,
-                                             const std::string                      &fileName,
-                                             const clang::SourceManager             &sourceMgr);
+                                                                        const std::set<const clang::FunctionDecl*>   &funcDecls,
+                                                                        const std::string                      &fileName,
+                                                                        const clang::SourceManager             &sourceMgr);
    
-
+   static std::shared_ptr<const Plustache::Context> CreateUnitTestContext( const std::set<std::string>            &includePaths,
+                                                                           const std::set<const clang::FunctionDecl*>   &funcDecls,
+                                                                           const std::string                      &fileName,
+                                                                           const clang::SourceManager             &sourceMgr);
+   
+   
    static void MockFunctionFFF(const clang::FunctionDecl* const    funcDecl,
                                std::ostringstream&           out,
                                const clang::SourceManager&   sourceMgr);
    
    static void WriteTemplate(   std::shared_ptr<const Plustache::Context>      context,
-                                const std::string  &fileName);
+                                const std::string& templateFileName,
+                                const std::string  &outFileName);
    
 public:
    

@@ -59,7 +59,8 @@ std::shared_ptr<const Plustache::Context> Writer::CreateMockContext(const std::s
 
 
 void Writer::WriteTemplate(std::shared_ptr<const Plustache::Context>      context,
-                                 const std::string                      &fileName){
+                                 const std::string& templateFileName,
+                                 const std::string                      &outFileName){
    template_t     t;
    stringstream   buffer;
    string         result;
@@ -68,7 +69,7 @@ void Writer::WriteTemplate(std::shared_ptr<const Plustache::Context>      contex
    
    std::cout << full_path.string();
    
-   ifstream template_file("../../mock.template");
+   ifstream template_file(templateFileName);
    
    if (template_file.fail() )
    {
@@ -86,7 +87,7 @@ void Writer::WriteTemplate(std::shared_ptr<const Plustache::Context>      contex
    //delete context.get("mocks");
    
    std::ofstream outputFile;   
-   std::string outputFileName = fileName + "-mocks.h";   
+   std::string outputFileName = outFileName;   
    outputFile.open( outputFileName, std::fstream::out );
    outputFile << result;
    outputFile.close();
@@ -173,12 +174,47 @@ void Writer::CreateMockFile(const std::string& fileName, const clang::SourceMana
 
    std::shared_ptr<const Plustache::Context> context = CreateMockContext(includePaths, results::get().functionDecls, fileName, sourceMgr);
 
-   Writer::WriteTemplate(context, fileName);
+   Writer::WriteTemplate(context, std::string("../../mock.template"), fileName + "-mocks.h");
    
 }
 
 
 
+std::shared_ptr<const Plustache::Context> Writer::CreateUnitTestContext(const std::set<std::string>                  &includePaths,
+                                                                    const std::set<const clang::FunctionDecl*>   &functionToUnitTest,
+                                                                    const std::string                            &fileName,
+                                                                    const clang::SourceManager                   &sourceMgr){
+   
+   std::shared_ptr<Plustache::Context> context = std::make_shared<Plustache::Context>();
+   
+   //Context              *c = new Context();
+   ObjectType            Include;
+   ObjectType            FunctionToUnitTest;
+   
+   for(auto iter : includePaths){
+      Include["include"] = iter;
+      context->add("includes", Include);      
+   }
+   // add mock file in includes list
+   Include["include"] = boost::filesystem::path(fileName).filename().string() + "-mocks.h";
+   context->add("includes", Include); 
+
+   for ( auto iter : functionToUnitTest ) {
+      FunctionToUnitTest["functionName"] = iter->getNameAsString();
+      context->add("functionToUnitTest", FunctionToUnitTest);
+   }
+   
+   // create a C++ class name from the fileName
+   std::string TestFilename = boost::filesystem::path(fileName).filename().string();
+   TestFilename = utils::removeDashes(TestFilename);
+   TestFilename = utils::removeFileExtension(TestFilename);
+   
+   context->add("testFilename", TestFilename);   
+   context->add("filename", fileName);
+   context->add("newline", "\n");
+   
+   return context;
+}
 
 void Writer::CreateUnitTestFile(const std::string& fileName, const clang::SourceManager& sourceMgr)
 {
@@ -200,48 +236,52 @@ void Writer::CreateUnitTestFile(const std::string& fileName, const clang::Source
 
       boost::filesystem::path p(declSrcFile);
 
-      includePaths.insert( p.filename().string() );
+      includePaths.insert( utils::changeFileExtension(p.filename().string(), "h") );
    }
 
-   out << "/* @owner \\TODO */\n";
-   out << "/**\n";
-   out << " * @file  " << fnameUT << "-ugtest.c \n";
-   out << " * @brief \\TODO.\n";
-   out << " *\n";
-   out << " * @copyright Copyright of this program is the property of AMADEUS, without\n";
-   out << " * whose written permission reproduction in whole or in part is prohibited.\n";
-   out << " *\n";
-   out << " */\n\n";
-
-   out << "extern \"C\"{\n";
-   for ( auto include : includePaths ){
-      out << "#include \"" << include <<  "\"\n";
-   }
-   out << "#include \"" << fnameUT << "-mocks.h\"\n";
-   out << "}\n\n";
-   out << "#include <gtest/gtest.h>\n\n";
-
-   out << "class Test_" << fnameUT << " : public ::testing::Test\n";
-   out << "{\n";
-   out << "protected:\n";
-   out << "   void SetUp()\n{\n}\n";
-   out << "   void TearDown()\n{\n}\n";
-   out << "};\n";
-
-
+   std::shared_ptr<const Plustache::Context> context = CreateUnitTestContext(includePaths, results::get().functionToUnitTest, fileName, sourceMgr);
    
-   out << "int main(int argc, char *argv[])\n{\n";
-   out << "   ::testing::InitGoogleTest(&argc, argv);\n";
-   out << "   return RUN_ALL_TESTS();\n}\n";
+   Writer::WriteTemplate(context, std::string("../../ut.template"), fileName + "-ugtest.c" );
+   
+//    out << "/* @owner \\TODO */\n";
+//    out << "/**\n";
+//    out << " * @file  " << fnameUT << "-ugtest.c \n";
+//    out << " * @brief \\TODO.\n";
+//    out << " *\n";
+//    out << " * @copyright Copyright of this program is the property of AMADEUS, without\n";
+//    out << " * whose written permission reproduction in whole or in part is prohibited.\n";
+//    out << " *\n";
+//    out << " */\n\n";
+// 
+//    out << "extern \"C\"{\n";
+//    for ( auto include : includePaths ){
+//       out << "#include \"" << include <<  "\"\n";
+//    }
+//    out << "#include \"" << fnameUT << "-mocks.h\"\n";
+//    out << "}\n\n";
+//    out << "#include <gtest/gtest.h>\n\n";
+// 
+//    out << "class Test_" << fnameUT << " : public ::testing::Test\n";
+//    out << "{\n";
+//    out << "protected:\n";
+//    out << "   void SetUp()\n{\n}\n";
+//    out << "   void TearDown()\n{\n}\n";
+//    out << "};\n";
+// 
+// 
+//    
+//    out << "int main(int argc, char *argv[])\n{\n";
+//    out << "   ::testing::InitGoogleTest(&argc, argv);\n";
+//    out << "   return RUN_ALL_TESTS();\n}\n";
 
 
-   std::ofstream outputFile;
-   std::string outputFileName = fileName + "-ugtest.c";
-   outputFile.open( outputFileName, std::fstream::out );
-   outputFile << out.str();
-   outputFile.close();
+//    std::ofstream outputFile;
+//    std::string outputFileName = fileName + "-ugtest.c";
+//    outputFile.open( outputFileName, std::fstream::out );
+//    outputFile << out.str();
+//    outputFile.close();
   
-   std::cout << "file written: " << outputFileName << std::endl;
+//    std::cout << "file written: " << outputFileName << std::endl;
 
 }
 

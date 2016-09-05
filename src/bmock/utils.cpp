@@ -15,9 +15,32 @@ std::string utils::removeFileExtension( const std::string& fileNamePath)
   
 }
 
+
 std::string utils::changeFileExtension(const std::string& fileName, const std::string& newExt)
 {
    return boost::filesystem::change_extension(fileName, newExt).string();
+}
+
+
+std::string utils::removeDashes( const std::string& fileNamePath)
+{
+   std::string fileName = boost::filesystem::path(fileNamePath).filename().string();
+   
+   if (fileName.empty() )
+      return fileName;
+   
+   size_t pos = 0;
+   fileName[pos] = std::toupper(fileName[pos]); 
+   
+   pos = fileName.find("-", pos);
+   while ( pos !=  std::string::npos )
+   {
+      fileName.erase(pos, 1);
+      fileName[pos] = std::toupper(fileName[pos]);   
+      pos = fileName.find("-", pos);
+   }
+   
+   return boost::filesystem::path(fileName).parent_path().string() + fileName;  
 }
 
 

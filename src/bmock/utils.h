@@ -43,6 +43,8 @@ public:
 
    static std::string changeFileExtension(const std::string& fileName, const std::string& newExtension);
 
+   static std::string removeDashes( const std::string& fileNamePath);
+   
    static void fillFunctionQualTypes(void);
 };
 
