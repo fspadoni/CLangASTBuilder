@@ -17,6 +17,19 @@ extern "C"{
 #include <gtest/gtest.h>
 
 
+class Test_{{testFilename}} : public ::testing::Test
+{
+protected:
+   
+   void SetUp(){
+      
+   }
+   
+   void TearDown(){
+      
+   }
+};
+
 
 {{# functionToUnitTest}}
 TEST( {{testFilename}}, Test_{{functionName}})

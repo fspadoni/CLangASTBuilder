@@ -241,7 +241,7 @@ void Writer::CreateUnitTestFile(const std::string& fileName, const clang::Source
 
    std::shared_ptr<const Plustache::Context> context = CreateUnitTestContext(includePaths, results::get().functionToUnitTest, fileName, sourceMgr);
    
-   Writer::WriteTemplate(context, std::string("../../ut.template"), fileName + "-ugtest.c" );
+   Writer::WriteTemplate(context, std::string("../../UT.template"), fileName + "-ugtest.c" );
    
 //    out << "/* @owner \\TODO */\n";
 //    out << "/**\n";
