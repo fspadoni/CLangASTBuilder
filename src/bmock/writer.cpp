@@ -25,38 +25,33 @@ using Plustache::template_t;
 
 
 
-std::shared_ptr<const Plustache::Context> Writer::CreateMockContext(const std::set<std::string>            &includePaths,
-                                        const std::set<const clang::FunctionDecl*>   &funcDecls,
-                                        const std::string                      &fileName,
-                                        const clang::SourceManager             &sourceMgr){
+std::shared_ptr<const Plustache::Context> Writer::CreateMockContext(const std::set<std::string>                  &includePaths,
+                                                                    const std::set<const clang::FunctionDecl*>   &funcDecls,
+                                                                    const std::string                            &fileName,
+                                                                    const clang::SourceManager                   &sourceMgr){
    
    std::shared_ptr<Plustache::Context> context = std::make_shared<Plustache::Context>();
    
    //Context              *c = new Context();
    ObjectType            Include;
    ObjectType            Mock;
-   CollectionType        Includes;
-   CollectionType        Mocks;
    std::ostringstream    out;
    
    for(auto iter : includePaths){
       Include["include"] = iter;
-      Includes.push_back(Include);
+      context->add("includes", Include);      
    }
    
 
    for ( auto iter : funcDecls ) {
-      
       Writer::MockFunctionFFF( iter, out, sourceMgr);
       Mock["definition"] = out.str();
-      Mocks.push_back(Mock);
-      out.clear();
+      context->add("mocks", Mock);
+      out.str("");
    }
    
-   context->add("includes", Includes);
-   context->add("mocks", Mocks);
-   context->add("filename","filename");
-   context->add("newline","\n");
+   context->add("filename", fileName);
+   context->add("newline", "\n");
    
    return context;
 }
@@ -85,6 +80,10 @@ void Writer::WriteTemplate(std::shared_ptr<const Plustache::Context>      contex
    string         template_buff(buffer.str());
    
    result = t.render(template_buff, *context);
+  
+   //if ( context.get("includes") )
+   //delete context.get("includes");
+   //delete context.get("mocks");
    
    std::ofstream outputFile;   
    std::string outputFileName = fileName + "-mocks.h";   
@@ -99,7 +98,7 @@ void Writer::WriteTemplate(std::shared_ptr<const Plustache::Context>      contex
 
 void Writer::MockFunctionFFF(const clang::FunctionDecl   *funcDecl,
                              std::ostringstream          &out,
-                             const clang::SourceManager        &sourceMgr){
+                             const clang::SourceManager  &sourceMgr){
    
    // get declaration source location
    const clang::SourceLocation declSrcLoc = funcDecl->getSourceRange().getBegin();
@@ -358,7 +357,7 @@ void Writer::CreateSerializationFile(const std::string& fileName, const clang::S
          
       }
 
-       else if ( const clang::BuiltinType* typedefType = typedefQualType->getAs<clang::BuiltinType>() ) {
+      else if ( const clang::BuiltinType* typedefType = typedefQualType->getAs<clang::BuiltinType>() ) {
          
          //const clang::BuiltinDecl* typedefDecl = typedefType->getDecl();
          

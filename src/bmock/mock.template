@@ -1,0 +1,31 @@
+/* @owner TODO */
+/**
+ * @file  {{filename}} 
+ * @brief TODO.
+ *
+ * @copyright Copyright of this program is the property of AMADEUS, without
+ * whose written permission reproduction in whole or in part is prohibited.
+ *
+ */
+
+#include "fff.h"
+
+{{# includes}}
+#include "{{include}}" {{newline}}
+{{/ includes}}
+
+DEFINE_FFF_GLOBALS;
+
+
+/**
+ * MOCKED FUNCTIONS BEGIN
+ */
+
+{{# mocks}}
+{{definition}}
+{{newline}}
+{{/ mocks}}
+
+/**
+ * MOCKED FUNCTIONS END
+ */
